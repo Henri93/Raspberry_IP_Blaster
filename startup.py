@@ -81,6 +81,7 @@ def get_machine_ips():
     :returns: list of Strings of ip addresses
     """
     addresses = []
+    print("interfaces: " + str(netifaces.interfaces()))
     for interface in netifaces.interfaces():
         try:
             iface_data = netifaces.ifaddresses(interface)
@@ -99,7 +100,17 @@ def get_machine_ips():
             pass
     return addresses
 
+def wait_for_internet_connection():
+    while True:
+        try:
+            response = urllib2.urlopen('http://google.com',timeout=1)
+            return
+        except urllib2.URLError:
+            pass
+
+wait_for_internet_connection()
 # get ip address and send out
-ip_list = get_machine_ips()
-send_text(str(ip_list))
-send_email(ip_list)
+ip_string = get_machine_ips()
+filter_ip = [x for x in ip_string if not x.startswith("127") and ":" not in x]
+#send_text(str(ip_string))
+send_email(filter_ip)
